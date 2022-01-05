@@ -1,5 +1,8 @@
 This file contains documentation for reproducing results from the paper, and documentation for the code itself.
-It has three sections: Install, Reproducing the Paper Results, and Code Documentation.
+It has the following sections: Hardware Reqs, Install, Reproducing the Paper Results, and Code Documentation.
+
+# Hardware requirements
+We provide two different sets of scripts for two different hardware setups. The first set of scripts reproduces a small subset of the experimental results and are tested on a VM with 1-CPU, 8GB RAM, running on a 2.6 GHz CPU. The second set reproduces all experimental results and was tested on a VM with 8-CPUs, 24GB RAM, running on a 2.6 GHz CPU.
 
 # Install
 ## VM setup
@@ -16,10 +19,10 @@ It has three sections: Install, Reproducing the Paper Results, and Code Document
   bash shared/install.sh
   # make sure to close the terminal window and open a new one after the script finishes, otherwise the path environment variables won't be right!
   
-The install script two important things: (1) install packages/software and (2) increase the limit on the maximum number of files allowed to be open. The thing (2) is necessary for python's parallelization library. If you see an error in the install script's output from "ulimit", you will not be able to leverage thread parallelism.
+The install script does two important things: (1) install packages/software and (2) increase the limit on the maximum number of files allowed to be open. The thing (2) is necessary for python's parallelization library. If you see an error in the install script's output from "ulimit", python's multiprocessing libraries will throw exceptions if used. In this case, you will need to disable the --parallel options from our scripts.
 
 # Reproducing The Paper Results
-The hardware used for our experiments was a Intel 2.6 GHz i7-6700 CPU that has 8 CPUs and 32GB RAM. Note that if you have less than 24GB of RAM, some of the scripts for running the full set experiments may crash with out-of-memory. However, we also provide scripts that will run a subset of experiments which can be run on a machine with only 8GB of RAM and 1 CPU. 
+The hardware used for our experiments in the publication was a Intel 2.6 GHz i7-6700 CPU that has 8 CPUs and 32GB RAM. Note that if you have less than 24GB of RAM, some of the scripts for running the full set experiments may crash with out-of-memory. However, we also provide scripts that will run a subset of experiments which can be run on a machine with only 8GB of RAM and 1 CPU. 
 
 **Important Things To Note**
   - Our implementation depends on the Gurobi LP solver, which requires a license. After running our installation script, gurobi will be installed with a restricted license that is only good for 9 days and also places limits on the size of the LP program that it will solve. The restricted license will only allow you to run the Vision Model experiments, but not the language model experiments. To run all the experiments, You will need to obtain and install an academic license (which is free) here: https://www.gurobi.com/downloads/end-user-license-agreement-academic.
@@ -29,7 +32,9 @@ The hardware used for our experiments was a Intel 2.6 GHz i7-6700 CPU that has 8
 ## Vision Neural Network Experiments
 This section explains how to reproduce the verification results for the MNIST and CIFAR neural networks. We provide the trained networks used in our experiments and scripts to run all of the experiments under the auto_lirpa/examples/vision directory. The instructions below assume the user is in this directory. The models are under ~/auto_lirpa/examples/vision/models_from_paper/.
 
-We provide two scripts for reproducing results: (1) run_verification.sh which will reproduce all of the vision experiment results, and (2) run_verification_artifact.sh that runs a subset of the experiments. The latter script will attempt to verify 10 properties (i.e. prove robustness for 10 images) on each of the 6 vision networks. After running either of these scripts, a directory "experiments" will be created, which has 6 subdirectories -- one for each network -- that contain the verification result for the corresponding network. We also provide a script for reading the results and printing a nicely-formatted table. Below we show the usage, which works with either script. From the auto_lirpa/examples/vision directory, run:
+We provide two scripts for reproducing results: (1) run_verification.sh which will reproduce all of the vision experiment results, and (2) run_verification_artifact.sh that runs a subset of the experiments. The latter script will attempt to verify 10 properties (i.e. prove robustness for 10 images) on each of the 6 vision networks. Note you will need at least 24 GB of RAM for the full set of experiments. 
+
+After running either of these scripts, a directory "experiments" will be created, which has 6 subdirectories -- one for each network -- that contain the verification result for the corresponding network. We also provide a script for reading the results and printing a nicely-formatted table. Below we show the usage, which works with either script. From the auto_lirpa/examples/vision directory, run:
 
   # run the verification
   bash run_verification_artifact.sh
@@ -66,12 +71,14 @@ Both the artifact script and the full experiments script simply call simple_trai
   --merge_nodes: Specififies that we should use LinSyn to bound the activations. If this flag is ommitted, auto_lirpa's default "decomposing" method will be used to bound the activations.
 
 ## Language model experiments
-** Note: ** You will need to obtain and install an academic license for Gurobi for these experiments to work. You can do so here
-    https://www.gurobi.com/downloads/end-user-license-agreement-academic.
+** Note: ** You will need to obtain and install an academic license for Gurobi for the full set of experiments to work. You can do so here
+    https://www.gurobi.com/downloads/end-user-license-agreement-academic. We also provide a script with some experiments that will work without the academic licenese.
     
 This section explains how to reproduce the verification results for the LSTM neural networks. We provide the trained networks used in our experiments and scripts to run all of the experiments under the auto_lirpa/examples/language directory. The instructions below assume the user is in this directory. The models are under ~/auto_lirpa/examples/language/models_from_paper/.
 
-We provide two scripts for reproducing results: (1) run_verification.sh which will reproduce all of the vision experiment results, and (2) run_verification_artifact.sh that runs a subset of the experiments. The latter script will attempt to verify 10 properties (i.e. prove robustness for 10 sentences) on each of the 3 LSTMs used in our paper. After running either of these scripts, a directory "experiments" will be created, which has 3 subdirectories -- one for each network -- that contain the verification result for the corresponding network. We also provide a script for reading the results and printing a nicely-formatted table. Below we show the usage, which works with either script. From the auto_lirpa/examples/vision directory, run:
+We provide two scripts for reproducing results: (1) run_verification.sh which will reproduce all of the language model experiment results, and (2) run_verification_artifact.sh that runs a subset of the experiments. The latter script will attempt to verify 10 properties (i.e. prove robustness for 10 sentences) on each of the 3 LSTMs used in our paper (note we also reduced the epsilon value, which was necessary for running Gurobi without the academic license). To run the first script, you will need at least 24 GB ram and then gurobi academic license.
+
+After running either of these scripts, a directory "experiments" will be created, which has 3 subdirectories -- one for each network -- that contain the verification result for the corresponding network. We also provide a script for reading the results and printing a nicely-formatted table. Below we show the usage, which works with either script. From the auto_lirpa/examples/vision directory, run:
 
   cd ~/auto_lirpa/examples/language
   # run the verification
@@ -79,6 +86,8 @@ We provide two scripts for reproducing results: (1) run_verification.sh which wi
   # print the results 
   cd experiments
   python ../print_table_stats.py
+
+Note that you will see messages like "Example 2 got exception", specifically on the LSTM with log-log activation. This is expected.
 
 This will print a table with % of properties verified (i.e. accuracy) and time for each of the tools evaluated in our paper (auto_lirpa, popqorn, and ours). Below is the expected output after running run_verification_artifact.sh on 8 cpu machine (the accuracies should match, but the times may differ depending on # of cpus):
 bench        ours acc    ours time  auto_lirpa acc      auto_lirpa time     popqorn acc         popqorn time
@@ -104,7 +113,7 @@ Both the artifact script and the full experiments script simply call run_single_
   --merge_nodes: This flag should be enabled when you wish to use LinSyn or POPQORN's bounding techniques (you specify which one using the --tool option below)
   --tool ours: Which bounding technique to use. Should be one of "ours", "auto_lirpa", or "popqorn". If "auto_lirpa" you need to omit the --merge_nodes flag. If either of the other two, you must include the --merge_nodes flag.
 
-**A Note on these scripts:** all inputs must have the same sequence length, and the same sequence index(es) must be perturbed for all the inputs.
+**A Note on run_single_verification.py:** all inputs must have the same sequence length, and the same sequence index(es) must be perturbed for all the inputs.
 
 # Training new models
 In this section, we show how to train models from scratch.
@@ -118,9 +127,11 @@ Running the above will train and save the model to the file "cifar_cnn_5layer_sw
 ## Language models
 From the ~/auto_lirpa/examples/vision directory, one can run the following command to train a 1-layer LSTM with the sigmoid*tanh activation the SST2 dataset from scratch:
 
-  python3 train.py --dir models/lstmcustom_sigtanh --arch "custom-no-avg" --num_epochs=10 --model=lstm --lr=1e-3 --dropout=0.5 --train
+  python3 train.py --dir models/lstmcustom_sigtanh --arch "custom-sigtanh" --num_epochs=10 --model=lstm --lr=1e-3 --dropout=0.5 --train
   
 Running the above will train and save the model to the file under the directory ./models/lstmcustom_sigtanh. The script will actually save the current model after each epoch, so there will be 10 models under the directory ./models/lstmcustom_sigtanh, with the final model being ckpt_10. Any of these checkpoints can then be used in the verification examples above. The argument to --arch specifies the activation pattern to use, which can be one of custom-loglog, custom-hardtanh, custom-sigtanh.
+
+More details on this training script can be found in the auto_lirpa documentation, here: https://github.com/KaidiXu/auto_LiRPA/blob/master/doc/src/paper.md#language-models.
 
 
 # Code Documentation
@@ -182,7 +193,8 @@ Now we can instantiate the module, and use it to compute linear bounds.
   drCfg = [("use_polytope", True), ("precision", 0.0000001), ("number_of_jobs", 1)]
   
   # All of the None arguments are for parameters that are no longer used. (They were for some features I
-  # was experimenting with, but did not end up being useful).
+  # was experimenting with, but did not end up being useful). See the doc in RuntimeActBounds.py for more
+  # info on parameters.
   linsynModule = RuntimeActBounds(sigmoid_tanh, [dx_sigmoid_tanh, dy_sigmoid_tanh], None, 0.1, None, 1e-6, None, drCfg)
   
   # compute a linear bound for sigmoid(x)*tanh(y) when x in [-2, 2] and y in [-2, 2]
